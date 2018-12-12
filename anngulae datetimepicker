@@ -1,0 +1,108 @@
+@{
+    ViewBag.Title = "Home Page";
+}  
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.43/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.16.0/moment.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.43/js/bootstrap-datetimepicker.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.min.js"></script>
+
+
+<div class="container" ng-app="myApp" ng-controller="DateTimeController">
+    {{date}}
+    <div class="row">
+        <div class='col-md-6'>
+            <div class="form-group">
+                <div class='input-group date' id='datetimepicker1'>
+                    <input type="text" size="16" class="form-control" ng-value="date" ng-model="date" dt >
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class='col-md-6'>
+            <div class="form-group">
+                <div class='input-group date' id='datetimepicker1'>
+                    <input type='text' class="form-control" datetimez="datePickerOptions" ng-model="dueDate2" />
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var myApp = angular.module('myApp', []);
+   
+    myApp.controller('DateTimeController', function ($scope) {
+        $scope.date = '13-Feb-2016 12:29 AM';
+
+             //$scope.submit = function () {
+             //    var dt = new Date($scope.selectedDt);
+             //    alert(dt);
+             //}
+         }
+    );
+    myApp.directive('dt', function () {
+        return {
+            require: '?ngModel',
+            restrict: 'A',
+            link: function ($scope, element, attrs, controller) {
+               
+                var updateModel, onblur;
+
+                if (controller !== null) {
+                    console.log(element)
+                    updateModel = function () {
+                        if (element.data("DateTimePicker").minViewMode === element.data("DateTimePicker").viewMode) {
+                            element.data("DateTimePicker").hide();
+                            element.blur();
+                        }
+                    };
+
+                    //onblur = function () {
+                    //    var date = element.datetimepicker().data("DateTimePicker").getDate();
+                    //    return $scope.$apply(function () {
+                    //        return controller.$setViewValue(date);
+                    //    });
+                    //};
+
+                    controller.$render = function () {
+                        var date = controller.$viewValue;
+                        if (angular.isDefined(date) && date != null && moment.isMoment(date)) {
+                            element.datetimepicker().data("DateTimePicker").setDate(date);
+                        } else if (angular.isDefined(date)) {
+                            //console.log(date);
+                            //throw new Error('ng-model value must be a Moment - currently it is a ' + typeof date + '.');
+                        }
+                        return controller.$viewValue;
+                    };
+                }
+                return attrs.$observe('dt', function (value) {
+                    var options;
+                    options = {
+                        format: 'DD-MMM-YYYY hh:mm A',
+                        //defaultDate: '',
+                        useCurrent: false,
+                        sideBySide: true,
+                        //defaultDate: moment($scope).hours(0).minutes(0).seconds(0).milliseconds(0)
+                    }; //<--- insert your own defaults here!
+                    if (angular.isObject(value)) {
+                        options = value;
+                    }
+                    if (typeof (value) === "string" && value.length > 0) {
+                        options = angular.fromJson(value);
+                    }
+                    return element.datetimepicker(options).on('change.dp', updateModel).on('blur', onblur);
+                });
+            }
+        };
+    });
+ 
+</script>
